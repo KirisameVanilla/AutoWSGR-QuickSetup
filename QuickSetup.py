@@ -4,11 +4,10 @@ import subprocess
 import threading
 import os
 import configparser
-import requests
 import zipfile
 
 class PipInstallerApp:
-    def __init__(self, root):
+    def __init__(self, root:tk.Tk):
         self.root = root
         self.root.title("AutoWSGR快速启动")
         self.venv_name = "autowsgr_venv"
@@ -117,6 +116,7 @@ class PipInstallerApp:
             return
 
         def download_and_extract():
+            import requests
             try:
                 self.output_area.insert(tk.END, f"正在从 {selected_source} 下载用例文件...\n")
                 response = requests.get(download_url, stream=True)
@@ -142,7 +142,7 @@ class PipInstallerApp:
 
         threading.Thread(target=download_and_extract, daemon=True).start()
 
-    def run_command(self, command, venv_activate=False):
+    def run_command(self, command:str, venv_activate:bool=False):
         """在子线程中执行命令并捕获输出"""
         def run():
             try:
@@ -172,6 +172,8 @@ class PipInstallerApp:
                 )
                 
                 while True:
+                    if process.stdout is None:
+                        continue
                     output = process.stdout.readline()
                     if output == '' and process.poll() is not None:
                         break
@@ -190,7 +192,7 @@ class PipInstallerApp:
         
         threading.Thread(target=run, daemon=True).start()
 
-    def get_mirror_options(self, action="install"):
+    def get_mirror_options(self, action:str="install"):
         """根据选择的镜像源生成pip选项"""
         mirror = self.mirror_var.get()
         options = []
@@ -228,7 +230,7 @@ class PipInstallerApp:
     def install_package(self):
         """安装包"""
         mirror_options = self.get_mirror_options()
-        command = f"pip install {self.package_name} " + " ".join(mirror_options)
+        command = f"pip install {self.package_name} requests " + " ".join(mirror_options)
         self.run_command(command, venv_activate=True)
 
     def update_package(self):
