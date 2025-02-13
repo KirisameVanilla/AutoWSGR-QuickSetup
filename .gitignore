@@ -1,2 +1,5 @@
 .vscode/
 autowsgr_quicksetup_config.ini
+build/
+dist/
+*.spec
